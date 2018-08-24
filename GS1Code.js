@@ -13,7 +13,6 @@ const sscclength = 18;
 let gs1prefixlength = -1;
 let serialnumberlength = -1;
     
-
 function setLengths(_gs1prefix)  {
     if(_gs1prefix.length < 6 || _gs1prefix.length > 9) return undefined
     gs1prefixlength= _gs1prefix.length;
@@ -30,6 +29,16 @@ function  sscc () {
                     checkDigit: _sscc.substring(sscclength-1,sscclength )
                 }
     }
+
+    this.first = function (_gs1prefix){
+        setLengths(_gs1prefix);
+        var _sscc = objSscc.extensionDigit + _gs1prefix + Array(serialnumberlength+1).join('0');
+        console.log(_sscc);
+        let checkDigit = this.digitCalculate(_sscc);
+        console.log(checkDigit);
+        return _sscc + checkDigit;
+    }
+
     this.next = function (_sscc, _gs1prefix) {
         setLengths(_gs1prefix);
         _sscc = this.ssccUniform(_sscc);
@@ -64,19 +73,15 @@ function  sscc () {
     }
 
     this.digitCalculate = function(_sscc) {
-        //string.match(/^[0-9]+$/) != null; add check 17 digits
         var _calculateDigit = 0;
         var _value = 0;
         for( i = 0; i< 17 ; i++){
             if (i % 2 == 0 ) _value = (Number.parseInt(_sscc[i]) * 3)
             else _value = (Number.parseInt(_sscc[i]) * 1)
             _calculateDigit = _calculateDigit + _value;
-            //console.log (`Calculating...is ${i % 2 == 0}  (Stringa[${i}]- ${_sscc[i]}) -> ${_value} Sum:${_calculateDigit}  `);
         }
         const lastDigitCalculated =_calculateDigit % 10 ;
-        if (lastDigitCalculated >4 ) checkDigit = 10 -  lastDigitCalculated;
-        else checkDigit = lastDigitCalculated;
-        //console.log(this.split(checkDigit));
+        checkDigit = 10 -  lastDigitCalculated;
         return checkDigit;
     }
     this.ssccFromObj = function (){
@@ -98,5 +103,6 @@ function  sscc () {
 module.exports = new sscc();
 const mySscc = new sscc('1234567');
 
-console.log('Final result:' + mySscc.next( '012349999999999992','123456') );
+//console.log('Final result:' + mySscc.next( '012349999999999992','123456') );
+//console.log('Final result first:' + mySscc.first( '100000') );
 //console.log('Test split:' + mySscc.split( '080179380010044425').sscc.extensionDigit );
